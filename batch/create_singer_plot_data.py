@@ -9,10 +9,12 @@ with open('../data/song_id.tsv', "r", encoding='utf-8') as f:
         song_id_num += 1
 
 singer_id_num = 0
+singer_list = []
 with open('../data/singer_id.tsv', "r", encoding='utf-8') as f:
     tsv = csv.reader(f, delimiter='\t')
     for row in tsv:
         singer_id_num += 1
+        singer_list.append(row[1])
 
 mat = np.zeros((singer_id_num, song_id_num))
 with open('../data/song_singer_list.tsv', "r", encoding='utf-8') as f:
@@ -51,3 +53,19 @@ print("start pca")
 singer_plot = PCA(n_components=2).fit_transform(dist_mat)
 print("end pca")
 np.savetxt('../data/singer_plot_dist_pca.tsv', singer_plot, delimiter='\t')
+
+abs_max = 0
+for row in singer_plot:
+    for i in range(len(row)):
+        if abs(row[i]) > abs_max:
+            abs_max = abs(row[i])
+scale = 0.9/abs_max
+
+with open('../data/plot_data.js', "w", encoding='utf-8') as f:
+    f.write("plot_data = [" + "\n")
+    for i in range(len(singer_list)):
+        f.write("{" + 'name:"' + singer_list[i] +'", posX:' + str(singer_plot[i, 0]*scale) + ", posY:" + str(singer_plot[i, 1]*scale) + "}")
+        if i < len(singer_list) - 1:
+            f.write(",\n")
+        else:
+            f.write("]")
