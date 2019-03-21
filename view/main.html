@@ -7,7 +7,7 @@
     </head>
     <body>
         <div id="app">
-            <svg viewbox="0 0 800 800" width="800" height="800" style="float:left">
+            <svg viewbox="0 0 800 800" width="800" height="800" style="position:fixed; left:350; top:0">
                 <line x1=400 y1=0 x2=400 y2=800 stroke="black"></line>
                 <line x1=0 y1=400 x2=800 y2=400 stroke="black"></line>
                 <g v-for="item in items" @click="selected_singer_id = item.singer_id">
@@ -16,16 +16,16 @@
                     <circle v-else :cx="(item.posX+1)*400" :cy="(-item.posY+1)*400" r=5></circle>
                 </g>
             </svg>
-            <ul v-if="selected_singer_id > -1" style="float:left">
+            <div v-if="selected_singer_id > -1" style="float:left; padding-left: 2em">
                 <span>Vsinger: {{ items[selected_singer_id].name }}</span>
                 <br>
-                <li v-for="song in items[selected_singer_id].song" v-on:click="query = song">
-                    <span v-if="song == query" style="color:red">{{ song }}</span>
-                    <span v-else>{{ song }}</span>
+                <p v-for="song in items[selected_singer_id].song" v-on:click="query = song">
+                    <a href="javascript:void(0);" v-if="song == query" style="color:red">{{ song }}</a>
+                    <a href="javascript:void(0);" v-else>{{ song }}</a>
                     <br>
                     <iframe width="280" height="157" :src='`https://www.youtube.com/embed/${videoId_map[items[selected_singer_id].name][song]}`' frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                </li>
-            </ul>
+                </p>
+            </div>
         </div>
     </body>
 </html>
