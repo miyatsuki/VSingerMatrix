@@ -2,46 +2,48 @@ import numpy as np
 from sklearn.decomposition import PCA
 import csv
 
-song_id_num = 0
 song_list = []
-with open('../data/song_id.tsv', "r", encoding='utf-8') as f:
-    tsv = csv.reader(f, delimiter='\t')
-    for row in tsv:
-        song_id_num += 1
-        song_list.append(row[1])
-
-singer_id_num = 0
 singer_list = []
-with open('../data/singer_id.tsv', "r", encoding='utf-8') as f:
-    tsv = csv.reader(f, delimiter='\t')
-    for row in tsv:
-        singer_id_num += 1
-        singer_list.append(row[1])
 
-mat = np.zeros((singer_id_num, song_id_num))
 singer_song_map = {}
-with open('../data/song_singer_list.tsv', "r", encoding='utf-8') as f:
+singer_song_videoId_map = {}
+with open('../data/filtered_song_list.tsv', "r", encoding='utf-8') as f:
     tsv = csv.reader(f, delimiter='\t')
     for row in tsv:
-        mat[int(row[1]), int(row[0])] = 1
+        singer = row[0]
+        song = row[2]
+        videoId = row[3]
 
-        singer_string = singer_list[int(row[1])]
-        song_string = song_list[int(row[0])]
+        if singer not in singer_list:
+            singer_list.append(singer)
+            singer_song_map[singer] = []
+            singer_song_videoId_map[singer] = {}
 
-        if singer_string not in singer_song_map:
-            singer_song_map[singer_string] = []
-        singer_song_map[singer_string].append(song_string)
+        if song not in song_list:
+            song_list.append(song)
 
-dist_mat = np.zeros((singer_id_num, singer_id_num))
-for i in range(singer_id_num):
-    for j in range(singer_id_num):
+        singer_song_map[singer].append(song)
+        singer_song_videoId_map[singer][song] = videoId
+
+mat = np.zeros((len(singer_list), len(song_list)))
+for singer in singer_song_map:
+    singer_id = singer_list.index(singer)
+
+    for song in singer_song_map[singer]:
+        song_id = song_list.index(song)
+        mat[singer_id, song_id] = 1
+
+
+dist_mat = np.zeros((len(singer_list), len(singer_list)))
+for i in range(len(singer_list)):
+    for j in range(len(singer_list)):
         if i == j:
             continue
 
         i_sum = 0
         j_sum = 0
         ij_inner = 0
-        for song_id in range(song_id_num):
+        for song_id in range(len(song_list)):
             ij_inner += mat[i, song_id] * mat[j, song_id]
             i_sum += mat[i, song_id]*mat[i, song_id]
             j_sum += mat[j, song_id]*mat[j, song_id]
@@ -49,11 +51,11 @@ for i in range(singer_id_num):
         if ij_inner > 0:
             dist_mat[i, j] = 1 - ij_inner/(np.sqrt(i_sum) * np.sqrt(j_sum))
         else:
-            dist_mat[i, j] = singer_id_num + 1
+            dist_mat[i, j] = len(singer_list) + 1
 
-for k in range(singer_id_num):
-    for i in range(singer_id_num):
-        for j in range(singer_id_num):
+for k in range(len(singer_list)):
+    for i in range(len(singer_list)):
+        for j in range(len(singer_list)):
             if dist_mat[i, j] > (dist_mat[i, k] + dist_mat[k, j]):
                 dist_mat[i, j] = dist_mat[i, k] + dist_mat[k, j]
 np.savetxt('../data/dist.tsv', dist_mat, delimiter='\t')
@@ -62,7 +64,6 @@ np.savetxt('../data/dist.tsv', dist_mat, delimiter='\t')
 print("start pca")
 singer_plot = PCA(n_components=2).fit_transform(dist_mat)
 print("end pca")
-np.savetxt('../data/singer_plot_dist_pca.tsv', singer_plot, delimiter='\t')
 
 abs_max = 0
 for row in singer_plot:
@@ -86,3 +87,25 @@ with open('../data/plot_data.js', "w", encoding='utf-8') as f:
             f.write(",\n")
         else:
             f.write("]")
+    
+    f.write("\n\n")
+
+    # video_id情報
+    f.write("videoId_map = {\n")
+    singer_count = 0
+    for singer in singer_song_videoId_map:
+        f.write('"' + singer + '" : {')
+
+        song_count = 0
+        for song in singer_song_videoId_map[singer]:
+            f.write('"' + song + '":"' + singer_song_videoId_map[singer][song] + '"')
+            song_count += 1
+            if song_count < len(singer_song_videoId_map[singer]):
+                f.write(',') 
+        
+        f.write('}')
+        singer_count += 1
+        if singer_count < len(singer_song_videoId_map):
+            f.write(',\n')
+        else:
+            f.write("}")

@@ -27,7 +27,7 @@ with open('../data/playlist.tsv', "r", encoding='utf-8') as f:
             param = {
                 'key': secrets["youtube_dataAPI_token"]
                 , 'playlistId': playlist_id
-                , 'part': 'snippet'
+                , 'part': 'snippet, contentDetails'
                 , 'maxResults': '50'
                 , 'pageToken': pageToken
             }
@@ -36,7 +36,7 @@ with open('../data/playlist.tsv', "r", encoding='utf-8') as f:
             result = req.json()
 
             for i in range(len(result["items"])):
-                song_list.append(singer + "\t" + result["items"][i]["snippet"]["title"])
+                song_list.append(singer + "\t" + result["items"][i]["snippet"]["title"] + "\t" + result["items"][i]["contentDetails"]["videoId"])
 
             print(result)
             sleep(1)
