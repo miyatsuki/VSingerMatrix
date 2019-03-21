@@ -4,7 +4,8 @@ onload = function() {
     const app = new Vue({
       el: '#app',
       data: {
-        items: plot_data
+        items: plot_data,
+        query: ""
       }
     })
 };
