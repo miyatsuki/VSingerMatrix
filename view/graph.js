@@ -7,7 +7,8 @@ onload = function() {
         items: plot_data,
         videoId_map: videoId_map,
         query: "",
-        selected_singer_id: -1
+        selected_singer_id: -1,
+        selected_video_id: ""
       }
     })
 };
