@@ -5,7 +5,8 @@ onload = function() {
       el: '#app',
       data: {
         items: plot_data,
-        query: ""
+        query: "",
+        selected_singer_id: -1
       }
     })
 };

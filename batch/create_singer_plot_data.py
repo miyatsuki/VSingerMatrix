@@ -77,9 +77,10 @@ with open('../data/plot_data.js', "w", encoding='utf-8') as f:
         
         song_list_string = '["' + '","'.join(singer_song_map[singer_list[i]]) + '"]'
 
-        f.write("{" + 'name:"' + singer_list[i] 
-                +'", posX:' + str(singer_plot[i, 0]*scale) 
-                + ", posY:" + str(singer_plot[i, 1]*scale) 
+        f.write("{" + 'singer_id:' + str(i)
+                + ', name:"' + singer_list[i]
+                + '", posX:' + str(singer_plot[i, 0]*scale)
+                + ", posY:" + str(singer_plot[i, 1]*scale)
                 + ", song:" + song_list_string +"}")
         if i < len(singer_list) - 1:
             f.write(",\n")
