@@ -2,32 +2,91 @@
     <head>
         <meta charset="utf-8"/>
         <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/pca-js@1.0.0/pca.min.js"></script>
+
         <script type="text/javascript" src="../data/plot_data.js" charset="UTF-8"></script>
         <script type="text/javascript" src="graph.js" charset="UTF-8"></script>
+        <!-- Compiled and minified CSS -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+        <!-- Compiled and minified JavaScript -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+ 
+       <!--Import Google Icon Font-->
+       <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+ 
+       <!--Let browser know website is optimized for mobile-->
+       <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     </head>
     <body>
         <div id="app">
-            <svg viewbox="0 0 800 800" width="800" height="800" style="position:fixed; left:400; top:0">
-                <line x1=400 y1=0 x2=400 y2=800 stroke="black"></line>
-                <line x1=0 y1=400 x2=800 y2=400 stroke="black"></line>
-                <g v-for="item in items" @click="selected_singer_id = item.singer_id">
-                    <text :x="(item.posX+1)*400-40" :y="(-item.posY+1)*400-10">{{ item.name }}</text>
-                    <circle v-if="item.song.indexOf(query) > -1" :cx="(item.posX+1)*400" :cy="(-item.posY+1)*400" r=5 fill="red"></circle>
-                    <circle v-else :cx="(item.posX+1)*400" :cy="(-item.posY+1)*400" r=5></circle>
-                </g>
-            </svg>
-            <div v-if="selected_singer_id > -1" style="float:left; padding-left: 2em">
-                <span>Vsinger: {{ items[selected_singer_id].name }}</span>
-                <br>
-                <p v-for="song in items[selected_singer_id].song" v-on:click="query = song">
-                    <a href="javascript:void(0);" v-if="song == query" style="color:red">{{ song }}</a>
-                    <a href="javascript:void(0);" v-else>{{ song }}</a>
-                    <br>
-                    <img :src='`https://i.ytimg.com/vi/${videoId_map[items[selected_singer_id].name][song]}/mqdefault.jpg`' v-on:click="selected_video_id = videoId_map[items[selected_singer_id].name][song]"></iframe>
-                </p>
+            <div class="row">
+                <nav>
+                    <div class="nav-wrapper">
+                        <a href="#" class="brand-logo">VSinger可視化ツール(仮)</a>
+                        <ul id="nav-mobile" class="right hide-on-med-and-down">
+                        <li><a href="sass.html">Sass</a></li>
+                        <li><a href="badges.html">Components</a></li>
+                        <li><a href="collapsible.html">JavaScript</a></li>
+                        </ul>
+                    </div>
+                </nav>
             </div>
-            <div v-if="true" style="position: fixed; left: 400; bottom: 10; background: white">
-                <iframe width="280" height="157" :src='`https://www.youtube.com/embed/${selected_video_id}`' frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <div class="row">
+                <div class="col s10 offset-s1">
+                    <form action="#" style="display: inline;" id="search-type">
+                        <label>
+                        <input class="with-gap" name="group1" type="radio" checked v-on:change="$forceUpdate()"/>
+                        <span>全員が歌っている曲</span>
+                        </label>
+                        <label>
+                        <input  class="with-gap" name="group1" type="radio" v-on:change="$forceUpdate()"/>
+                        <span>一人以上歌っている曲</span>
+                        </label>
+                        </label>
+                    </form>
+                 <div class="chips"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s7">
+                    <h5>検索結果</h5>
+                    <div class="divider"></div>
+                    <div class="col s6 card" v-for="video in getSearchResult()">
+                        <div class="card-title">
+                            <span class="truncate col s9 flow-text" >{{ video.song }}</span>
+                        </div>
+
+                        <div v-if="selected_video_id == video.video_id" class="col s12">
+                            <div class="video-container">
+                                <iframe  width="320" height="180" :src='`https://www.youtube.com/embed/${selected_video_id}?autoplay=1`' frameborder="0"></iframe>
+                            </div>
+                        </div>
+                        <img v-else class="responsive-img col s12" :src='`https://i.ytimg.com/vi/${video.video_id}/mqdefault.jpg`'
+                                v-on:click="selected_video_id = video.video_id" style="cursor: pointer">
+                    </div>
+                </div>
+                <div class="col s5">
+                    <h5>分析結果</h5>
+                    <div class="divider"></div>
+                        <div class="card">
+                            <div class="card-title">
+                                VSingerプロット
+                            </div>
+                            <div class="card-image">
+                                <svg viewbox="0 0 800 800">
+                                    <line x1=400 y1=0 x2=400 y2=800 stroke="black"></line>
+                                    <line x1=0 y1=400 x2=800 y2=400 stroke="black"></line>
+                                    <g v-for="(pos, singer_id) in pca_vec">
+                                        <text :x="(pos[0]+1)*400-40" :y="(-pos[1]+1)*400-10">{{ items[singer_id].name }}</text>
+                                        <circle v-if="isSinging(items[singer_id].name)" :cx="(pos[0]+1)*400" :cy="(-pos[1]+1)*400" r=5 fill="red"></circle>
+                                        <circle v-else :cx="(pos[0]+1)*400" :cy="(-pos[1]+1)*400" r=5></circle>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </body>

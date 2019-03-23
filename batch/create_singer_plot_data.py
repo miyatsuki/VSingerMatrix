@@ -109,3 +109,19 @@ with open('../data/plot_data.js', "w", encoding='utf-8') as f:
             f.write(',\n')
         else:
             f.write("}")
+
+    f.write("\n\n")
+    # distmat
+    f.write("dist_mat = [")
+    row_count = 0
+    for row in dist_mat:
+        f.write('[')
+        f.write(','.join(map(str, row.tolist())))
+        f.write(']')
+
+        
+        row_count += 1
+        if row_count < len(dist_mat):
+            f.write(',\n')
+        else:
+            f.write("]")

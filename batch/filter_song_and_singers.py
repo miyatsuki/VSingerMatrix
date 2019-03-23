@@ -28,7 +28,7 @@ with open('../data/song_list.tsv', "r", encoding='utf-8') as f:
 
 song_list = []
 for song in raw_song_singer_map:
-    if len(raw_song_singer_map[song]) >= 3:
+    if len(raw_song_singer_map[song]) >= 0:
         song_list.append(song)
 
 
@@ -40,7 +40,7 @@ for singer in raw_singer_list:
         if singer in raw_song_singer_map[song]:
             cnt += 1
 
-    if cnt >= 3:
+    if cnt >= 0:
         singer_list.append(singer)
         continue
 
