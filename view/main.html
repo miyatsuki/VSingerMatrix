@@ -34,29 +34,39 @@
             </div>
             <div class="row">
                 <div class="col s10 offset-s1">
-                    <form action="#" style="display: inline;" id="search-type">
-                        <label>
-                        <input class="with-gap" name="group1" type="radio" checked v-on:change="$forceUpdate()"/>
-                        <span>全員が歌っている曲</span>
-                        </label>
-                        <label>
-                        <input  class="with-gap" name="group1" type="radio" v-on:change="$forceUpdate()"/>
-                        <span>一人以上歌っている曲</span>
-                        </label>
-                        </label>
-                    </form>
                  <div class="chips"></div>
                 </div>
             </div>
             <div class="row">
-                <div class="col s7">
+                <div class="col s12 l6">
                     <h5>検索結果</h5>
                     <div class="divider"></div>
+                    <div class="row">
+                        <form action="#" style="display: inline;" id="search-type">
+                            <label>
+                                <input class="with-gap" name="group1" type="radio" checked v-on:change="$forceUpdate()"/>
+                                <span>全員が歌っている曲</span>
+                            </label>
+                            <label>
+                                <input class="with-gap" name="group1" type="radio" v-on:change="$forceUpdate()"/>
+                                <span>50%以上</span>
+                            </label>
+                            <label>
+                                <input class="with-gap" name="group1" type="radio" v-on:change="$forceUpdate()"/>
+                                <span>25%以上</span>
+                            </label>
+                            <label>
+                                <input  class="with-gap" name="group1" type="radio" v-on:change="$forceUpdate()"/>
+                                <span>1人以上</span>
+                            </label>
+                        </form>
+                    </div>
+
                     <div class="col s6 card" v-for="video in getSearchResult()">
                         <div class="card-title">
-                            <span class="truncate col s9 flow-text" >{{ video.song }}</span>
+                            <span class="truncate flow-text" >{{ video.song }}</span>
                         </div>
-
+                        <span class="flow-text">被選択率: {{ video.popularity}}%</span>
                         <div v-if="selected_video_id == video.video_id" class="col s12">
                             <div class="video-container">
                                 <iframe  width="320" height="180" :src='`https://www.youtube.com/embed/${selected_video_id}?autoplay=1`' frameborder="0"></iframe>
@@ -66,9 +76,10 @@
                                 v-on:click="selected_video_id = video.video_id" style="cursor: pointer">
                     </div>
                 </div>
-                <div class="col s5">
+                <div class="col s12 l6">
                     <h5>分析結果</h5>
                     <div class="divider"></div>
+                    <div class="col s12 xl6">
                         <div class="card">
                             <div class="card-title">
                                 VSingerプロット
@@ -77,14 +88,33 @@
                                 <svg viewbox="0 0 800 800">
                                     <line x1=400 y1=0 x2=400 y2=800 stroke="black"></line>
                                     <line x1=0 y1=400 x2=800 y2=400 stroke="black"></line>
-                                    <g v-for="(pos, singer_id) in pca_vec">
-                                        <text :x="(pos[0]+1)*400-40" :y="(-pos[1]+1)*400-10">{{ items[singer_id].name }}</text>
-                                        <circle v-if="isSinging(items[singer_id].name)" :cx="(pos[0]+1)*400" :cy="(-pos[1]+1)*400" r=5 fill="red"></circle>
-                                        <circle v-else :cx="(pos[0]+1)*400" :cy="(-pos[1]+1)*400" r=5></circle>
+                                    <g v-for="pos_info in dist2vec(singer_list)">
+                                        <text :x="(pos_info.posX+1)*400-40" :y="(-pos_info.posY+1)*400-10">{{ pos_info.singer }}</text>
+                                        <circle v-if="isSinging(pos_info.singer)" :cx="(pos_info.posX+1)*400" :cy="(-pos_info.posY+1)*400" r=5 fill="red"></circle>
+                                        <circle v-else :cx="(pos_info.posX+1)*400" :cy="(-pos_info.posY+1)*400" r=5></circle>
                                     </g>
                                 </svg>
                             </div>
                         </div>
+                    </div>
+                    <div class="col s12 xl6">
+                        <div class="card">
+                            <div class="card-title">
+                                VSingerプロット(全員）
+                            </div>
+                            <div class="card-image">
+                                <svg viewbox="0 0 800 800">
+                                    <line x1=400 y1=0 x2=400 y2=800 stroke="black"></line>
+                                    <line x1=0 y1=400 x2=800 y2=400 stroke="black"></line>
+                                    <g v-for="pos_info in pca_vec_all">
+                                        <text :x="(pos_info.posX+1)*400-40" :y="(-pos_info.posY+1)*400-10">{{ pos_info.singer }}</text>
+                                        <circle v-if="isSinging(pos_info.singer)" :cx="(pos_info.posX+1)*400" :cy="(-pos_info.posY+1)*400" r=5 fill="red"></circle>
+                                        <circle v-else :cx="(pos_info.posX+1)*400" :cy="(-pos_info.posY+1)*400" r=5></circle>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
                     </div>
                 </div>
             </div>
