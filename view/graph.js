@@ -49,6 +49,65 @@ onload = function() {
             }
             return result
           },
+          getNearestSingers: function(){
+
+            if(this.singer_list.length == 0){
+              return []
+            }
+
+            max_distance = 0;
+            for(var i = 0; i < dist_mat.length; i++){
+              for(var j = 0; j < dist_mat.length; j++){
+                if(max_distance < dist_mat[i][j]){
+                  max_distance = dist_mat[i][j]
+                }
+              }
+            }
+
+            singer_id_list = []
+            for(var i = 0; i < plot_data.length; i++){
+              if(this.singer_list.indexOf(plot_data[i].name) > -1){
+                singer_id_list.push(plot_data[i].singer_id)
+              }
+            }
+
+            distance_list = []
+            for(var i = 0; i < dist_mat.length; i++){
+              distance_list.push(0)
+              for(var j = 0; j < singer_id_list.length; j++){
+                distance_list[i] += (dist_mat[i][singer_id_list[j]]/singer_id_list.length)
+              }
+            }
+            
+            sort_index = []
+            for(var i = 0; i < distance_list.length; i++){
+              is_inserted = false
+              for(var j = 0; j < i; j++){
+                if(distance_list[sort_index[j]] > distance_list[i]){
+                  is_inserted = true
+                  sort_index.splice(j, 0, i)
+                  break
+                }
+              }
+
+              if(!is_inserted){
+                sort_index.push(i)
+              }
+            }
+
+            result = []
+            for(var i = 0; i < 20; i++){
+              singer_id = sort_index[i]
+              result.push({name: plot_data[singer_id].name, simirarity: (max_distance-distance_list[singer_id])/max_distance})
+            }
+
+            for(var i = sort_index.length-6; i < sort_index.length; i++){
+              singer_id = sort_index[i]
+              result.push({name: plot_data[singer_id].name, simirarity: (max_distance-distance_list[singer_id])/max_distance})
+            }
+
+            return result
+          },
           isSinging(singer){
             if(this.singer_list.indexOf(singer) > -1){
               return true

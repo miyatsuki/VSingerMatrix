@@ -24,11 +24,6 @@
                 <nav>
                     <div class="nav-wrapper">
                         <a href="#" class="brand-logo">VSinger可視化ツール(仮)</a>
-                        <ul id="nav-mobile" class="right hide-on-med-and-down">
-                        <li><a href="sass.html">Sass</a></li>
-                        <li><a href="badges.html">Components</a></li>
-                        <li><a href="collapsible.html">JavaScript</a></li>
-                        </ul>
                     </div>
                 </nav>
             </div>
@@ -38,7 +33,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col s12 l6">
+                <div class="col s12 l6 xl4">
                     <h5>検索結果</h5>
                     <div class="divider"></div>
                     <div class="row">
@@ -62,7 +57,7 @@
                         </form>
                     </div>
 
-                    <div class="col s6 card" v-for="video in getSearchResult()">
+                    <div class="col s6 m4 l6 card" v-for="video in getSearchResult()">
                         <div class="card-title">
                             <span class="truncate flow-text" >{{ video.song }}</span>
                         </div>
@@ -76,9 +71,31 @@
                                 v-on:click="selected_video_id = video.video_id" style="cursor: pointer">
                     </div>
                 </div>
-                <div class="col s12 l6">
+                <div class="col s12 l6 xl8">
                     <h5>分析結果</h5>
                     <div class="divider"></div>
+                    <div class="col s12 xl6">
+                        <div class="card">
+                            <div class="card-title">
+                                近いvsinger
+                            </div>
+                            <div class="card-image">
+                                <svg viewbox="0 0 600 600">
+                                    <g v-for="(singer, index) in getNearestSingers()">
+                                        <text v-if="index < 20" :x="10" :y="20*index + 20">{{ singer.name }}</text>
+                                        <rect v-if="index < 20" x="140" :y="20*index + 7" :width="380*singer.simirarity" height="10"></rect>
+                                        <text v-if="index < 20" :x="530" :y="20*index + 20">{{ Math.round(singer.simirarity*10000)/10000 }}</text>        
+
+                                        <text v-if="index >= 20" :x="10" :y="20*index + 20 + 40"> {{ singer.name }} </text>
+                                        <rect v-if="index >= 20" x="140" :y="20*index + 7 + 40" :width="380*singer.simirarity" height="10"></rect>
+                                        <text v-if="index >= 20" :x="530" :y="20*index + 20 + 40">{{ Math.round(singer.simirarity*10000)/10000 }}</text>        
+                                    </g>
+                                    <text :x="50" :y="20*21 + 10"> : </text>
+                                    <text :x="550" :y="20*21 + 10"> : </text>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
                     <div class="col s12 xl6">
                         <div class="card">
                             <div class="card-title">
@@ -88,6 +105,7 @@
                                 <svg viewbox="0 0 800 800">
                                     <line x1=400 y1=0 x2=400 y2=800 stroke="black"></line>
                                     <line x1=0 y1=400 x2=800 y2=400 stroke="black"></line>
+
                                     <g v-for="pos_info in dist2vec(singer_list)">
                                         <text :x="(pos_info.posX+1)*400-40" :y="(-pos_info.posY+1)*400-10">{{ pos_info.singer }}</text>
                                         <circle v-if="isSinging(pos_info.singer)" :cx="(pos_info.posX+1)*400" :cy="(-pos_info.posY+1)*400" r=5 fill="red"></circle>
