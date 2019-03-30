@@ -2,34 +2,64 @@ import numpy as np
 from sklearn.decomposition import PCA
 import csv
 
-song_list = []
-singer_list = []
+raw_song_list = []
+raw_singer_list = []
 
-singer_song_map = {}
+raw_singer_song_map = {}
 singer_song_videoId_map = {}
-with open('../data/filtered_song_list.tsv', "r", encoding='utf-8') as f:
+song_count_map = {}
+with open('../data/song_list.tsv', "r", encoding='utf-8') as f:
     tsv = csv.reader(f, delimiter='\t')
     for row in tsv:
         singer = row[0]
         song = row[2]
         videoId = row[3]
 
-        if singer not in singer_list:
-            singer_list.append(singer)
-            singer_song_map[singer] = []
+        if singer not in raw_singer_list:
+            raw_singer_list.append(singer)
+            raw_singer_song_map[singer] = []
             singer_song_videoId_map[singer] = {}
 
-        if song not in song_list:
-            song_list.append(song)
+        if song not in raw_song_list:
+            raw_song_list.append(song)
+        
+        if song not in song_count_map:
+            song_count_map[song] = 0
 
-        singer_song_map[singer].append(song)
+        raw_singer_song_map[singer].append(song)
         singer_song_videoId_map[singer][song] = videoId
+        song_count_map[song] += 1
+
+
+song_list = []
+singer_list = []
+singer_num_threashold = 2
+print(song_count_map)
+print(song_count_map["天体観測"])
+
+singer_song_map = {}
+for singer in raw_singer_song_map:
+    singer_song_map[singer] = {}
+    singer_song_map[singer]["include"] = []
+    singer_song_map[singer]["exclude"] = []
+
+    for song in raw_singer_song_map[singer]:
+        if song_count_map[song] >= singer_num_threashold:
+            singer_song_map[singer]["include"].append(song)
+            if song not in song_list:
+                song_list.append(song)
+        else:
+            singer_song_map[singer]["exclude"].append(song)
+    
+    if len(singer_song_map[singer]["include"]) > 0:
+        singer_list.append(singer)
+
 
 mat = np.zeros((len(singer_list), len(song_list)))
 for singer in singer_song_map:
     singer_id = singer_list.index(singer)
 
-    for song in singer_song_map[singer]:
+    for song in singer_song_map[singer]["include"]:
         song_id = song_list.index(song)
         mat[singer_id, song_id] = 1
 
@@ -58,7 +88,6 @@ for k in range(len(singer_list)):
         for j in range(len(singer_list)):
             if dist_mat[i, j] > (dist_mat[i, k] + dist_mat[k, j]):
                 dist_mat[i, j] = dist_mat[i, k] + dist_mat[k, j]
-np.savetxt('../data/dist.tsv', dist_mat, delimiter='\t')
 
 
 print("start pca")
@@ -76,7 +105,7 @@ with open('../view/plot_data.js', "w", encoding='utf-8') as f:
     f.write("plot_data = [" + "\n")
     for i in range(len(singer_list)):
         
-        song_list_string = '["' + '","'.join(singer_song_map[singer_list[i]]) + '"]'
+        song_list_string = '["' + '","'.join(singer_song_map[singer_list[i]]["include"]) + '"]'
 
         f.write("{" + 'singer_id:' + str(i)
                 + ', name:"' + singer_list[i]

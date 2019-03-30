@@ -16,6 +16,4 @@ if [[ -s "${DATA_DIR}/reject_song_list.tsv" ]]; then
 	exit 1
 fi
 
-${PYTHON_COMMAND} ${BIN_DIR}/filter_song_and_singers.py
-
 ${PYTHON_COMMAND} ${BIN_DIR}/create_singer_plot_data.py
