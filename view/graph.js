@@ -10,6 +10,7 @@ onload = function() {
           videoId_map: videoId_map,
           song_list: [],
           singer_list: ['YuNi'],
+          user_song_list: [],
           selected_video_id: ""
         },
         methods: {
@@ -106,6 +107,84 @@ onload = function() {
               result.push({name: plot_data[singer_id].name, simirarity: (max_distance-distance_list[singer_id])/max_distance})
             }
 
+            return result
+          },
+          getNearestSingersFromSong: function(){
+
+            console.log("getNearestSingersFromSong")
+            if(this.user_song_list.length == 0){
+              return []
+            }
+
+            distance_list = []
+            for(var i = 0; i < plot_data.length; i++){
+              common_song_count = 0
+              for(var j = 0; j < this.user_song_list.length; j++){
+                song = this.user_song_list[j]
+                if(plot_data[i]["song"].indexOf(song) > -1){
+                  common_song_count++
+                }
+              }
+
+              simirarity = -1
+              if(common_song_count > 0){
+                simirarity = common_song_count/(Math.sqrt(this.user_song_list.length)*Math.sqrt(plot_data[i]["song"].length))
+              }
+
+              distance_list.push(1 - simirarity)
+            }
+
+            for(var to = 0; to < distance_list.length; to++){
+              for(var i = 0; i < dist_mat.length; i++){
+                distance = distance_list[i] + dist_mat[i][to]
+                if(distance_list[to] > distance){
+                  distance_list[to] = distance
+                }
+              }
+            }
+
+            max_distance = 0;
+            for(var i = 0; i < distance_list.length; i++){
+              if(max_distance < distance_list[i]){
+                max_distance = distance_list[i]
+              }
+            }
+
+            singer_id_list = []
+            for(var i = 0; i < plot_data.length; i++){
+              if(this.singer_list.indexOf(plot_data[i].name) > -1){
+                singer_id_list.push(plot_data[i].singer_id)
+              }
+            }
+
+            sort_index = []
+            for(var i = 0; i < distance_list.length; i++){
+              is_inserted = false
+              for(var j = 0; j < i; j++){
+                if(distance_list[sort_index[j]] > distance_list[i]){
+                  is_inserted = true
+                  sort_index.splice(j, 0, i)
+                  break
+                }
+              }
+
+              if(!is_inserted){
+                sort_index.push(i)
+              }
+            }
+
+            result = []
+            for(var i = 0; i < 20; i++){
+              singer_id = sort_index[i]
+              result.push({name: plot_data[singer_id].name, simirarity: (max_distance-distance_list[singer_id])/max_distance})
+            }
+
+            for(var i = sort_index.length-6; i < sort_index.length; i++){
+              singer_id = sort_index[i]
+              result.push({name: plot_data[singer_id].name, simirarity: (max_distance-distance_list[singer_id])/max_distance})
+            }
+
+            console.log(result)
             return result
           },
           isSinging(singer){
@@ -246,6 +325,47 @@ onload = function() {
         for(var i = app.singer_list.length; i >= 0; i--){
           if(existing_tags.indexOf(app.singer_list[i]) == -1){
             app.singer_list.splice(i, 1)
+          }
+        }
+      }
+    })
+
+
+    var elems = document.querySelectorAll('.chips_songs')
+    var all_song_list = []
+    for(var i = 0; i < plot_data.length; i++){
+      for(var j = 0; j < plot_data[i]["song"].length; j++){
+        all_song_list.push(plot_data[i]["song"][j])
+      }
+    }
+
+    song_autocomplete = {}
+    for(var i = 0; i < all_song_list.length; i++){
+      song_autocomplete[all_song_list[i]] = null
+    }
+
+    var instances = M.Chips.init(elems, {
+      data : [
+      ],
+      placeholder: 'songs',
+      secondaryPlaceholder: '+songs',
+      autocompleteOptions: {
+        data: song_autocomplete,
+        limit: Infinity,
+        minLength: 2
+      },
+      onChipAdd: function(){
+        app.user_song_list.push(this.chipsData[this.chipsData.length - 1]["tag"])
+      },
+      onChipDelete: function(){
+        existing_tags = []
+        for(var i = 0; i < this.chipsData.length; i++){
+          existing_tags.push(this.chipsData[i]["tag"])
+        }
+
+        for(var i = app.song_list.length; i >= 0; i--){
+          if(existing_tags.indexOf(app.song_list[i]) == -1){
+            app.user_song_list.splice(i, 1)
           }
         }
       }

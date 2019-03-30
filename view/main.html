@@ -33,8 +33,13 @@
                 </div>
             </div>
             <div class="row">
+                <div class="col s10 offset-s1">
+                 <div class="chips_songs"></div>
+                </div>
+            </div>
+            <div class="row">
                 <div class="col s12 l6 xl4">
-                    <h5>検索結果</h5>
+                    <h5>検索結果(Vsinger基準)</h5>
                     <div class="divider"></div>
                     <div class="row">
                         <form action="#" style="display: inline;" id="search-type">
@@ -77,7 +82,7 @@
                     <div class="col s12 xl6">
                         <div class="card">
                             <div class="card-title">
-                                近いvsinger
+                                近いvsinger(Vsinger基準)
                             </div>
                             <div class="card-image">
                                 <svg viewbox="0 0 600 600">
@@ -99,7 +104,29 @@
                     <div class="col s12 xl6">
                         <div class="card">
                             <div class="card-title">
-                                VSingerプロット
+                                近いvsinger(楽曲基準)
+                            </div>
+                            <div class="card-image">
+                                <svg viewbox="0 0 600 600">
+                                    <g v-for="(singer, index) in getNearestSingersFromSong()">
+                                        <text v-if="index < 20" :x="10" :y="20*index + 20">{{ singer.name }}</text>
+                                        <rect v-if="index < 20" x="140" :y="20*index + 7" :width="380*singer.simirarity" height="10"></rect>
+                                        <text v-if="index < 20" :x="530" :y="20*index + 20">{{ Math.round(singer.simirarity*10000)/10000 }}</text>        
+
+                                        <text v-if="index >= 20" :x="10" :y="20*index + 20 + 40"> {{ singer.name }} </text>
+                                        <rect v-if="index >= 20" x="140" :y="20*index + 7 + 40" :width="380*singer.simirarity" height="10"></rect>
+                                        <text v-if="index >= 20" :x="530" :y="20*index + 20 + 40">{{ Math.round(singer.simirarity*10000)/10000 }}</text>        
+                                    </g>
+                                    <text :x="50" :y="20*21 + 10"> : </text>
+                                    <text :x="550" :y="20*21 + 10"> : </text>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col s12 xl6">
+                        <div class="card">
+                            <div class="card-title">
+                                VSingerプロット(選択中のVSinger間)
                             </div>
                             <div class="card-image">
                                 <svg viewbox="0 0 800 800">
