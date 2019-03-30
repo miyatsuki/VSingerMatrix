@@ -28,7 +28,7 @@ with open('../data/raw_song_list.tsv', "r", encoding='utf-8') as f:
         check_video_list.append([row[0], row[1], row[2]])
 
 prefix_punctuations = [" ", "【", "】", "》", "「", "『", "“", "/", "-", "、"]
-suffix_punctuations = [" ", "【", "】",  "(", "/", "」", "『", "』", "”", "/", "歌ってみた"]
+suffix_punctuations = [" ", "【", "】",  "(", "/", "」", "『", "』", "”", "-", "歌ってみた"]
 
 accept_singer_song_list = []
 reject_singer_song_list = []
