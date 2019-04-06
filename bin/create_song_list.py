@@ -25,7 +25,7 @@ check_video_list = []
 with open('../data/raw_song_list.tsv', "r", encoding='utf-8') as f:
     tsv = csv.reader(f, delimiter='\t')
     for row in tsv:
-        check_video_list.append([row[0], row[1], row[2]])
+        check_video_list.append([row[0], row[1], row[2], row[3]])
 
 prefix_punctuations = [" ", "【", "】", "》", "「", "『", "“", "/", "-", "、"]
 suffix_punctuations = [" ", "【", "】",  "(", "/", "」", "『", "』", "”", "-", "歌ってみた"]
@@ -36,6 +36,7 @@ for row in check_video_list:
     singer = row[0]
     title = unicodedata.normalize("NFKC", row[1])
     video_id = row[2]
+    view_count = row[3]
     title = jaconv.z2h(title, kana=False, digit=True, ascii=True).lower()
 
     if title == "private video" or title == "deleted video":
@@ -86,7 +87,7 @@ for row in check_video_list:
                 candidate_title = test_title
 
     if candidate_title != "":
-        accept_singer_song_list.append(singer + "\t" + title + "\t" + candidate_title  + "\t" + video_id)
+        accept_singer_song_list.append(singer + "\t" + title + "\t" + candidate_title  + "\t" + video_id + "\t" + view_count)
     else:
         reject_singer_song_list.append((title + "\t" + singer + "\t" + candidate_title_no_punct).strip())
 
