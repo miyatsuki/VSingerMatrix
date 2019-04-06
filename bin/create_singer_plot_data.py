@@ -1,6 +1,7 @@
 import numpy as np
-from sklearn.decomposition import PCA
 import csv
+from sklearn import manifold
+
 
 raw_song_list = []
 raw_singer_list = []
@@ -33,9 +34,7 @@ with open('../data/song_list.tsv', "r", encoding='utf-8') as f:
 
 song_list = []
 singer_list = []
-singer_num_threashold = 2
-print(song_count_map)
-print(song_count_map["天体観測"])
+singer_num_threashold = 1
 
 singer_song_map = {}
 for singer in raw_singer_song_map:
@@ -83,16 +82,14 @@ for i in range(len(singer_list)):
         else:
             dist_mat[i, j] = len(singer_list) + 1
 
-for k in range(len(singer_list)):
-    for i in range(len(singer_list)):
-        for j in range(len(singer_list)):
-            if dist_mat[i, j] > (dist_mat[i, k] + dist_mat[k, j]):
-                dist_mat[i, j] = dist_mat[i, k] + dist_mat[k, j]
+print("start magnetic simulation")
+mds = manifold.MDS(n_components=2, dissimilarity="precomputed", random_state=6)
+singer_plot = mds.fit_transform(dist_mat)
+print("end magnetic simulation")
 
-
-print("start pca")
-singer_plot = PCA(n_components=2).fit_transform(dist_mat)
-print("end pca")
+for row in singer_plot:
+    for i in range(len(row)):
+        row[i] = np.sign(row[i]) * np.sqrt(np.abs(row[i]))
 
 abs_max = 0
 for row in singer_plot:
