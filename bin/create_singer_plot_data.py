@@ -1,6 +1,7 @@
 import numpy as np
 import csv
 from sklearn import manifold
+import math
 
 
 raw_song_list = []
@@ -8,6 +9,8 @@ raw_singer_list = []
 
 raw_singer_song_map = {}
 singer_song_videoId_map = {}
+singer_song_viewCount_map = {}
+
 song_count_map = {}
 with open('../data/song_list.tsv', "r", encoding='utf-8') as f:
     tsv = csv.reader(f, delimiter='\t')
@@ -15,11 +18,13 @@ with open('../data/song_list.tsv', "r", encoding='utf-8') as f:
         singer = row[0]
         song = row[2]
         videoId = row[3]
+        view_count = int(row[4])
 
         if singer not in raw_singer_list:
             raw_singer_list.append(singer)
             raw_singer_song_map[singer] = []
             singer_song_videoId_map[singer] = {}
+            singer_song_viewCount_map[singer] = {}
 
         if song not in raw_song_list:
             raw_song_list.append(song)
@@ -29,6 +34,7 @@ with open('../data/song_list.tsv', "r", encoding='utf-8') as f:
 
         raw_singer_song_map[singer].append(song)
         singer_song_videoId_map[singer][song] = videoId
+        singer_song_viewCount_map[singer][song] = view_count
         song_count_map[song] += 1
 
 
@@ -60,7 +66,7 @@ for singer in singer_song_map:
 
     for song in singer_song_map[singer]["include"]:
         song_id = song_list.index(song)
-        mat[singer_id, song_id] = 1
+        mat[singer_id, song_id] = math.log10(singer_song_viewCount_map[singer][song])
 
 
 dist_mat = np.zeros((len(singer_list), len(singer_list)))
@@ -151,3 +157,9 @@ with open('../view/plot_data.js', "w", encoding='utf-8') as f:
             f.write(',\n')
         else:
             f.write("]")
+
+    f.write("\n\n")
+    # song_id_list
+    f.write("song_list = [\"")
+    f.write('","'.join(map(str, raw_song_list)))
+    f.write('"]')

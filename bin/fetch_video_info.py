@@ -24,7 +24,7 @@ with open('../data/playlist.tsv', "r", encoding='utf-8') as f:
     for row in tsv:
         pageToken = ""
         while True:
-            print("\n"*3)
+            print("\n")
             singer = row[0]
             playlist_id = row[1]
             param = {

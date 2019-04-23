@@ -11,9 +11,4 @@ ${PYTHON_COMMAND} ${BIN_DIR}/fetch_video_info.py
 
 ${PYTHON_COMMAND} ${BIN_DIR}/create_song_list.py
 
-if [[ -s "${DATA_DIR}/reject_song_list.tsv" ]]; then
-	echo "reject_song_list is not null"
-	exit 1
-fi
-
 ${PYTHON_COMMAND} ${BIN_DIR}/create_singer_plot_data.py
