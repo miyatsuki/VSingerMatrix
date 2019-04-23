@@ -7,10 +7,8 @@ onload = function() {
             videoId_map: videoId_map,
             singer_id: 0,
             song_id: 0,
-            pca_vec_all: [],
-            song_list: [],
-            user_song_list: [],
-            selected_video_id: ""
+            width: window.innerWidth,
+            height: window.innerHeight
         },
         methods: {
             getYAxisSong: function(){
@@ -144,30 +142,39 @@ onload = function() {
     }
 
     var touchStartX, touchStartY, touchMoveX, touchMoveY;
-    document.ontouchstart = evt => {
+    document.addEventListener('touchstart', function(evt){
+        event.preventDefault()
         touchStartX = evt.touches[0].pageX;
         touchStartY = evt.touches[0].pageY;
-    }
+    }, {passive: false})
 
-    document.ontouchmove = evt => {
+    document.addEventListener('touchmove', function(evt){
+        event.preventDefault()
         touchMoveX = evt.changedTouches[0].pageX
         touchMoveY = evt.changedTouches[0].pageY
-    }
+    }, {passive: false})
 
     document.ontouchend = evt => {
-        if(Math.abs(touchMoveX) > Math.abs(touchMoveY)){
-            if(touchStartX > touchMoveX + 50){
+        xDiff = Math.abs(touchStartX - touchMoveX)
+        yDiff = Math.abs(touchStartY - touchMoveY)
+        if(xDiff > yDiff){
+            if(touchStartX > touchMoveX + 25){
                 moveRight()
-            }else if(touchStartX - 50 < touchMoveX){
+            }else if(touchStartX - 25 < touchMoveX){
                 moveLeft()
             }
         }else{
-            if(touchStartY > touchMoveY + 50){
+            if(touchStartY > touchMoveY + 25){
                 moveDown()
-            }else if(touchStartY - 50 < touchMoveY){
+            }else if(touchStartY - 25 < touchMoveY){
                 moveUp()
             }
         }
     }
 
+    window.onresize = evt => {
+        app.width = window.innerWidth
+        app.height = window.innerHeight
+        console.log(app.width)
+    }
 }
