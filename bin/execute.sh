@@ -4,7 +4,7 @@ set -eu
 BASE_DIR="$(cd $(dirname $0)/../; pwd)"
 BIN_DIR="${BASE_DIR}/bin/"
 DATA_DIR="${BASE_DIR}/data/"
-PYTHON_COMMAND="${BASE_DIR}/env/bin/python"
+PYTHON_COMMAND="python"
 
 
 ${PYTHON_COMMAND} ${BIN_DIR}/fetch_video_info.py
